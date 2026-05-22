@@ -19,7 +19,7 @@ setup(
     maintainer='xie',
     maintainer_email='a15992282905@gmail.com',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
