@@ -1,12 +1,12 @@
 maps:
   # Odin1 重定位使用的 .bin 地图
-  relocalization_bin_file: "/home/xie/r2_algorithm_ws/maps/your_map.bin"
+  relocalization_bin_file: "/home/xie/techx_R2_algorithm/r2_algorithm_ws/chassis_maps/map_20260514_200359.bin"
 
   # RViz / Web 可视化用的 .pcd 地图
-  relocalization_pcd_file: "/home/xie/r2_algorithm_ws/maps/your_map.pcd"
+  relocalization_pcd_file: "/home/xie/techx_R2_algorithm/r2_algorithm_ws/chassis_maps/map_20260514_200359.pcd"
 
   # jie_octomap 加载的 OctoMap 地图包目录
-  map_package_dir: "/home/xie/r2_algorithm_ws/maps/your_map_package"
+  map_package_dir: "/home/xie/techx_R2_algorithm/r2_algorithm_ws/chassis_maps/map_20260514_200359"
 
 ui:
   show_rviz: false
