@@ -6,6 +6,6 @@ cmd_vel_to_serial_node:
     angular_scale: 1000.0
     max_vx: 0.08
     max_vy: 0.08
-    max_wz: 0.20
+    max_wz: 0.10
 
     cmd_timeout: 0.3
