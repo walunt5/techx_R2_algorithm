@@ -1,8 +1,0 @@
-build/
-install/
-log/
-.agents/
-.codex/
-.git_repo/
-__pycache__/
-*.py[cod]
