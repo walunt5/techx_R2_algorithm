@@ -444,6 +444,17 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("launch_rosbridge")),
     )
 
+    r2_nav_action_server_node = Node(
+    package="r2_nav_action_server",
+    executable="r2_nav_action_server_node",
+    name="r2_nav_action_server_node",
+    output="screen",
+    parameters=[
+        os.path.join(r2_nav_share, "config", "r2_nav_params.yaml"),
+        os.path.join(r2_nav_share, "config", "r2_nav_goals.yaml"),
+    ],
+)
+
     return LaunchDescription(
         [
             launch_rviz_arg,
@@ -471,5 +482,6 @@ def generate_launch_description():
             map_viewer_gui_node,
             web_http_server,
             rosbridge_node,
+            r2_nav_action_server_node,
         ]
     )
