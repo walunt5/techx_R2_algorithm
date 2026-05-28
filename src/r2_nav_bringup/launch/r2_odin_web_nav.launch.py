@@ -108,6 +108,10 @@ def generate_launch_description():
         config.get("d1_controller", {}).get("ros__parameters", {})
     )
 
+    action_server_params = dict(
+        config.get("action_server", {}).get("ros__parameters", {})
+    )
+
     relocalization_bin_file = require_file(
         maps.get("relocalization_bin_file", ""),
         "Odin1 重定位 .bin 地图",
@@ -122,9 +126,9 @@ def generate_launch_description():
     )
 
     goals_file = os.path.join(
-    r2_nav_share,
-    "config",
-    "r2_nav_goals.yaml",
+        r2_nav_share,
+        "config",
+        "r2_nav_goals.yaml",
     )
 
     show_rviz_default = "true" if bool(ui.get("show_rviz", False)) else "false"
@@ -451,26 +455,24 @@ def generate_launch_description():
     )
 
     r2_nav_action_server_node = Node(
-    package="r2_nav_action_server",
-    executable="r2_nav_action_server_node",
-    name="r2_nav_action_server_node",
-    output="screen",
-    parameters=[
-        {
-            "action_name": "/r2_navigate_to_pose",
-            "goals_file": goals_file,
-            "map_frame": frames.get("map_frame", "map"),
-            "base_frame": frames.get("base_frame", "chassis_base_link"),
-            "goal_position_tolerance": float(
-                d1_controller_params.get("goal_position_tolerance", 0.10)
-            ),
-            "goal_yaw_tolerance": float(
-                d1_controller_params.get("goal_yaw_tolerance", 0.20)
-            ),
-            "path_wait_timeout_sec": 5.0,
-            "feedback_rate_hz": 10.0,
-        }
-    ],
+        package="r2_nav_action_server",
+        executable="r2_nav_action_server_node",
+        name="r2_nav_action_server_node",
+        output="screen",
+        parameters=[
+            action_server_params,
+            {
+                "goals_file": goals_file,
+                "map_frame": frames.get("map_frame", "map"),
+                "base_frame": frames.get("base_frame", "chassis_base_link"),
+                "goal_position_tolerance": float(
+                    d1_controller_params.get("goal_position_tolerance", 0.10)
+                ),
+                "goal_yaw_tolerance": float(
+                    d1_controller_params.get("goal_yaw_tolerance", 0.20)
+                ),
+            }
+        ],
     )
 
     return LaunchDescription(

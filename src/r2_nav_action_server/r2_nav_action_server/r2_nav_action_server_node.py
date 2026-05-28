@@ -65,6 +65,7 @@ class R2NavActionServer(Node):
         self.declare_parameter("goal_position_tolerance", 0.10)
         self.declare_parameter("goal_yaw_tolerance", 0.20)
         self.declare_parameter("feedback_rate_hz", 10.0)
+        self.declare_parameter("tf_wait_timeout_sec", 5.0)
 
         self.action_name = self.get_parameter("action_name").value
         self.goals_file = self.get_parameter("goals_file").value
@@ -82,6 +83,9 @@ class R2NavActionServer(Node):
         )
         self.feedback_rate_hz = float(
             self.get_parameter("feedback_rate_hz").value
+        )
+        self.tf_wait_timeout_sec = float(
+            self.get_parameter("tf_wait_timeout_sec").value
         )
 
         # 目标点表
@@ -143,7 +147,11 @@ class R2NavActionServer(Node):
         )
 
         self.get_logger().info(f"R2 Nav Action Server 已启动: {self.action_name}")
-        self.get_logger().info(f"map_frame={self.map_frame}, base_frame={self.base_frame}")
+        self.get_logger().info(
+            f"map_frame={self.map_frame}, base_frame={self.base_frame}, "
+            f"tf_wait_timeout_sec={self.tf_wait_timeout_sec:.1f}, "
+            f"path_wait_timeout_sec={self.path_wait_timeout_sec:.1f}"
+        )
 
     def load_goals(self, goals_file: str):
         if not goals_file:
@@ -200,6 +208,30 @@ class R2NavActionServer(Node):
         pose.pose.position.z = tf.transform.translation.z
         pose.pose.orientation = tf.transform.rotation
         return pose
+
+    def wait_for_current_pose(self, timeout_sec: float) -> PoseStamped:
+        """
+        等待 map_frame -> base_frame 的 TF 出现。
+
+        作用：
+        - Odin 刚启动时,map -> odin1_base_link 可能还没发布；
+        - 静态 TF odin1_base_link -> chassis_base_link 也可能刚启动；
+        - 所以 Action Server 不应该第一次查不到 TF 就立刻失败。
+        """
+        start_time = time.time()
+        last_error = None
+
+        while rclpy.ok() and (time.time() - start_time) < timeout_sec:
+            try:
+                return self.lookup_current_pose()
+            except TransformException as e:
+                last_error = e
+                time.sleep(0.1)
+
+        raise RuntimeError(
+            f"等待 TF 超时: {self.map_frame} -> {self.base_frame}, "
+            f"timeout={timeout_sec:.1f}s, last_error={last_error}"
+        )
 
     def resolve_target_pose(self, goal) -> PoseStamped:
         if goal.goal_name:
@@ -306,15 +338,15 @@ class R2NavActionServer(Node):
                 f"y={target_pose.pose.position.y:.3f}"
             )
 
-            # 2. 查询当前机器人位置
-            feedback.state = "LOOKUP_CURRENT_POSE"
+            # 2. 等待并查询当前机器人位置
+            feedback.state = "WAIT_CURRENT_POSE_TF"
             goal_handle.publish_feedback(feedback)
 
             try:
-                start_pose = self.lookup_current_pose()
-            except TransformException as e:
+                start_pose = self.wait_for_current_pose(self.tf_wait_timeout_sec)
+            except Exception as e:
                 goal_handle.abort()
-                return self.make_result(False, f"查询当前 TF 失败: {e}")
+                return self.make_result(False, f"等待当前 TF 失败: {e}")
 
             # 3. 发布起点、终点、目标姿态，触发规划
             feedback.state = "PUBLISH_GOAL"
