@@ -125,7 +125,7 @@ def generate_launch_description():
     r2_nav_share,
     "config",
     "r2_nav_goals.yaml",
-)
+    )
 
     show_rviz_default = "true" if bool(ui.get("show_rviz", False)) else "false"
     show_map_gui_default = "true" if bool(ui.get("show_map_gui", False)) else "false"
@@ -471,7 +471,7 @@ def generate_launch_description():
             "feedback_rate_hz": 10.0,
         }
     ],
-)
+    )
 
     return LaunchDescription(
         [
