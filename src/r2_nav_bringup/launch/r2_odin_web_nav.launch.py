@@ -485,13 +485,11 @@ def generate_launch_description():
             launch_web_arg,
             launch_rosbridge_arg,
             web_http_port_arg,
-
             host_sdk_node,
             pcd2depth_node,
             cloud_reprojection_node,
             image_overlay_node,
             static_odin_to_chassis_node,
-
             pcd_publisher_node,
             rviz_node,
             map_package_manager_node,
