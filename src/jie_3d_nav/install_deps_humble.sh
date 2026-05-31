@@ -123,11 +123,7 @@ if [[ ! -d /etc/ros/rosdep/sources.list.d ]]; then
 fi
 rosdep update
 
-# ROS setup files may read optional variables that are unset by default.
-# Temporarily disable nounset so `set -u` in this script does not abort source.
-set +u
 source "/opt/ros/${ROS_DISTRO}/setup.bash"
-set -u
 
 ROSDEP_SKIP_KEYS=(
   d1_bringup
