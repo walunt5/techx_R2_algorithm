@@ -10,6 +10,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.time import Time
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 from geometry_msgs.msg import PointStamped, PoseStamped
 from nav_msgs.msg import Path
@@ -92,20 +93,27 @@ class R2NavActionServer(Node):
         self.goals = self.load_goals(self.goals_file)
 
         # Publisher
+        planning_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
+
         self.start_point_pub = self.create_publisher(
             PointStamped,
             self.get_parameter("start_point_topic").value,
-            10,
+            planning_qos,
         )
         self.goal_point_pub = self.create_publisher(
             PointStamped,
             self.get_parameter("goal_point_topic").value,
-            10,
+            planning_qos,
         )
         self.goal_pose_pub = self.create_publisher(
             PoseStamped,
             self.get_parameter("goal_pose_topic").value,
-            10,
+            planning_qos,
         )
         self.start_nav_pub = self.create_publisher(
             Bool,
@@ -279,12 +287,15 @@ class R2NavActionServer(Node):
 
         target_pose.header.stamp = now
 
-        # 连发几次，避免 planner 因为启动或通信时序漏掉
         for _ in range(3):
             self.start_point_pub.publish(start_point)
-            self.goal_point_pub.publish(goal_point)
+            time.sleep(0.05)
+
             self.goal_pose_pub.publish(target_pose)
-            time.sleep(0.1)
+            time.sleep(0.05)
+
+            self.goal_point_pub.publish(goal_point)
+            time.sleep(0.15)
 
     def publish_start_navigation(self):
         msg = Bool()

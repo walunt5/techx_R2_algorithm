@@ -101,7 +101,7 @@ action_server:
     tf_wait_timeout_sec: 5.0
 
     # 等待 jie_path_node 发布 /planned_path 的最长时间
-    path_wait_timeout_sec: 5.0
+    path_wait_timeout_sec: 20.0
 
     # Action feedback 发布频率
     feedback_rate_hz: 10.0
