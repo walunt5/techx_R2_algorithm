@@ -1,0 +1,10 @@
+build/
+install/
+log/
+image/
+.agents/
+.codex/
+.git_repo/
+__pycache__/
+*.py[cod]
+.vscode/
